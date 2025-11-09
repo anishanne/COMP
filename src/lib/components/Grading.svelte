@@ -44,6 +44,7 @@
 
 	let gradeQueue: (Unpacked<AsyncReturnType<typeof fetchNewScans>> & {
 		image: FabricImage;
+		image2: FabricImage;
 		grade_id: number | null;
 		grades: (string | null)[] | null;
 	})[] = [];
@@ -144,6 +145,10 @@
 							supabase.storage.from("scans").getPublicUrl(s.scan_path).data
 								.publicUrl,
 						),
+						image2: await FabricImage.fromURL(
+							supabase.storage.from("scans").getPublicUrl(s.scan_path).data
+								.publicUrl,
+						),
 						grade_id: null,
 						grades: showGrades
 							? ((
@@ -189,7 +194,7 @@
 		const bounding_boxes = test_data!.bounding_boxes as any;
 		console.log(bounding_boxes, problem_number, gradeQueue, problem_data);
 		// let boxIndex = Math.min(problem_number, bounding_boxes.box_positions.length - 1);
-		const bounding_box = bounding_boxes.box_positions[problem_number - 1];
+		const bounding_box = bounding_boxes[problem_number - 1];
 
 		// Parse input object
 		const topLeftX = parseFloat(bounding_box.top_left[0]);
@@ -356,6 +361,16 @@
 						on:click={async () => handleAction("Correct")}>✔ (V)</button
 					>
 				</div>
+				<ImageZoomer
+				image={gradeQueue[currentIndex].image2}
+				mod={problem_data.get(gradeQueue[currentIndex].test_problem_id)!
+						.problem_number == 10 ? 2 : 1}
+				inputCoordinates={calculateDimensions(
+					problem_data.get(gradeQueue[currentIndex].test_problem_id)!
+						.problem_number,
+				)}
+				/>
+
 				{#if showGrades}
 					<div class="flex">
 						<button disabled style="background-color: #FFFB99; color: #7C7215;">
